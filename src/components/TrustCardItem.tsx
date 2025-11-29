@@ -41,7 +41,7 @@ function IdentityBlock({
   const isGrid = view === 'grid'
 
   const avatarSrc =
-    avatar && avatar.startsWith('http') ? avatar : '/default-avatar.png'
+    avatar && avatar.startsWith('http') ? avatar : 'default-avatar.png'
 
   return (
     <div className={styles.identityCol}>
