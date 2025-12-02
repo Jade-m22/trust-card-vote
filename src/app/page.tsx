@@ -33,14 +33,13 @@ import {
 } from '@/lib/intuition/utils'
 import { useWaveTimer } from '@/hooks/useWaveTimer'
 
-const INTUITION_TESTNET_ID = 13579
-const MIN_TTRUST_WEI = 10_000_000_000_000_000n
-const VOTE_UNIT = Number(MIN_TTRUST_WEI) / 1e18
+const INTUITION_MAINNET_ID = 1155
+const MIN_TRUST_WEI = 10_000_000_000_000_000n
+const VOTE_UNIT = Number(MIN_TRUST_WEI) / 1e18
 
 const WAVE_1_END = new Date('2025-12-07T00:00:00Z').getTime()
 
 type StakeMap = Record<string, UserStake>
-
 
 export default function TrustCardVotePage() {
   const { isConnected, address } = useAccount()
@@ -77,19 +76,18 @@ export default function TrustCardVotePage() {
 
   const [workingTripleId, setWorkingTripleId] = useState<string | null>(null)
   const [userStakes, setUserStakes] = useState<StakeMap>({})
-  const [userPositionsLoaded, setUserPositionsLoaded] = useState(false)
 
   const timeLeft = useWaveTimer(WAVE_1_END)
 
   function getContextOrError(action: string): IntuitionContext | null {
     if (!walletClient || !publicClient || !chainId) {
-      setError(`Connect your wallet to the Intuition testnet to ${action}.`)
+      setError(`Connect your wallet to the Intuition Mainnet to ${action}.`)
       return null
     }
 
-    if (chainId !== INTUITION_TESTNET_ID) {
+    if (chainId !== INTUITION_MAINNET_ID) {
       setError(
-        `Please switch your wallet to the Intuition Testnet (chain id ${INTUITION_TESTNET_ID}) to ${action}.`,
+        `Please switch your wallet to the Intuition Mainnet (chain id ${INTUITION_MAINNET_ID}) to ${action}.`,
       )
       return null
     }
@@ -114,7 +112,6 @@ export default function TrustCardVotePage() {
     void reloadTriples()
   }, [])
 
-
   const lowerAddress = address?.toLowerCase()
   const positionsVariables = address
     ? {
@@ -129,13 +126,16 @@ export default function TrustCardVotePage() {
       }
     : undefined
 
-  const { data: positionsData, refetch: refetchPositions } =
-    useGetPositionsQuery(positionsVariables, {
-      enabled: Boolean(lowerAddress),
-    })
+  const {
+    data: positionsData,
+    refetch: refetchPositions,
+    isLoading: positionsLoading,
+  } = useGetPositionsQuery(positionsVariables, {
+    enabled: Boolean(lowerAddress),
+  })
 
   useEffect(() => {
-    if (!positionsData || triples.length === 0) return
+    if (!positionsData) return
 
     const stakes: StakeMap = {}
     const tripleById = new Map(triples.map((t) => [t.term_id, t]))
@@ -187,7 +187,6 @@ export default function TrustCardVotePage() {
     }
 
     setUserStakes(stakes)
-    setUserPositionsLoaded(true)
   }, [positionsData, triples])
 
   async function refreshStakeForTriple(
@@ -348,7 +347,7 @@ export default function TrustCardVotePage() {
     const ctx = getContextOrError('create an identity')
     if (!ctx) {
       throw new Error(
-        'Connect your wallet to the Intuition testnet before creating an identity.',
+        'Connect your wallet to the Intuition Mainnet before creating an identity.',
       )
     }
 
@@ -436,8 +435,10 @@ export default function TrustCardVotePage() {
   async function handleUpvote(triple: TrustCardTriple, amount: string) {
     setError(null)
 
-    if (lowerAddress && !userPositionsLoaded) {
-      setError('Loading your on-chain positions, please retry.')
+    if (lowerAddress && positionsLoading) {
+      setError(
+        'Your on-chain positions are still loading. Please try again in a moment.',
+      )
       return
     }
 
@@ -469,8 +470,8 @@ export default function TrustCardVotePage() {
       setWorkingTripleId(triple.term_id)
 
       const wei = parseTTrustToWei(amount)
-      if (wei < MIN_TTRUST_WEI) {
-        throw new Error('Minimum amount is 0.01 tTRUST.')
+      if (wei < MIN_TRUST_WEI) {
+        throw new Error('Minimum amount is 0.01 TRUST.')
       }
       const amountNum = parseAmountToNumber(amount)
 
@@ -511,8 +512,10 @@ export default function TrustCardVotePage() {
   async function handleDownvote(triple: TrustCardTriple, amount: string) {
     setError(null)
 
-    if (lowerAddress && !userPositionsLoaded) {
-      setError('Loading your on-chain positions, please retry.')
+    if (lowerAddress && positionsLoading) {
+      setError(
+        'Your on-chain positions are still loading. Please try again in a moment.',
+      )
       return
     }
 
@@ -544,8 +547,8 @@ export default function TrustCardVotePage() {
       setWorkingTripleId(triple.term_id)
 
       const wei = parseTTrustToWei(amount)
-      if (wei < MIN_TTRUST_WEI) {
-        throw new Error('Minimum amount is 0.01 tTRUST.')
+      if (wei < MIN_TRUST_WEI) {
+        throw new Error('Minimum amount is 0.01 TRUST.')
       }
       const amountNum = parseAmountToNumber(amount)
 
@@ -615,7 +618,7 @@ export default function TrustCardVotePage() {
 
           <div className={styles.heroContent}>
             <h1 className={styles.heroHeading}>
-              Vote for the firsts <span>Trust Card holders</span>
+              Vote for the firsts 100 <span>Trust Card holders</span>
             </h1>
 
             <p className={styles.heroSubtitle}>
@@ -624,8 +627,8 @@ export default function TrustCardVotePage() {
 
             <div className={styles.heroMeta}>
               <div className={styles.timerBlock}>
-                <span className={styles.metaLabel}>Time left (Current Wave)</span>
-                <span className={styles.timerValue}>{displayTimeLeft}</span>
+                {/* <span className={styles.metaLabel}>Time left (Current Wave)</span> */}
+                {/* <span className={styles.timerValue}>{displayTimeLeft}</span> */}
               </div>
             </div>
 
@@ -636,7 +639,7 @@ export default function TrustCardVotePage() {
                 rel="noreferrer"
                 className={styles.heroCTA}
               >
-                What is Trust Card ?
+                Trust Card Docs
               </a>
             </div>
 
@@ -667,7 +670,7 @@ export default function TrustCardVotePage() {
 
       <CreateClaimStartModal
         open={isStartModalOpen}
-        predicateLabel="deserve to be one of the first holder of"
+        predicateLabel="should be holder of"
         objectLabel="Trust Card"
         onClose={closeStartModal}
         onUseExisting={handleUseExisting}
@@ -682,7 +685,7 @@ export default function TrustCardVotePage() {
       <CreateTripleModal
         open={isTripleModalOpen}
         subjectLabel={pendingSubject.label}
-        predicateLabel="deserve to be one of the first holder of"
+        predicateLabel="should holder of"
         objectLabel="Trust Card"
         onClose={closeTripleModal}
         onConfirm={handleCreateTriple}

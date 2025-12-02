@@ -63,7 +63,7 @@ function IdentityBlock({
             <h3 className={styles.title}>{label}</h3>
             {view === 'list' && (
               <p className={styles.subtitleInline}>
-                deserve to be one of the first holder of → Trust Card
+                should be holder of → Trust Card
               </p>
             )}
           </div>
@@ -87,7 +87,7 @@ function IdentityBlock({
 
         {isGrid && (
           <p className={styles.subtitle}>
-            deserve to be one of the first holder of → Trust Card
+            should be holder of → Trust Card
           </p>
         )}
 

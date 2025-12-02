@@ -2,32 +2,32 @@ import { createConfig, http } from 'wagmi'
 import { defineChain } from 'viem'
 import { injected } from 'wagmi/connectors'
 
-export const intuitionTestnet = defineChain({
-  id: 13579,
-  name: 'Intuition Testnet',
+export const intuitionMainnet = defineChain({
+  id: 1155,
+  name: 'Intuition Mainnet',
   nativeCurrency: {
-    name: 'tTRUST',
-    symbol: 'tTRUST',
+    name: 'TRUST',
+    symbol: 'TRUST',
     decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: ['https://testnet.rpc.intuition.systems/'],
+      http: ['https://rpc.intuition.systems/http'],
     },
   },
   blockExplorers: {
     default: {
       name: 'Intuition Explorer',
-      url: 'https://testnet.explorer.intuition.systems',
+      url: 'https://explorer.intuition.systems',
     },
   },
 })
 
 export const wagmiConfig = createConfig({
-  chains: [intuitionTestnet],
+  chains: [intuitionMainnet],
   connectors: [injected()],
   transports: {
-    [intuitionTestnet.id]: http('https://testnet.rpc.intuition.systems/'),
+    [intuitionMainnet.id]: http('https://rpc.intuition.systems/http'),
   },
   ssr: true,
 })

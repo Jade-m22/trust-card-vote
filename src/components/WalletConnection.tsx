@@ -8,7 +8,7 @@ import {
   useChainId,
 } from 'wagmi'
 import styles from './WalletConnection.module.css'
-import { intuitionTestnet } from '@/lib/wagmiConfig'
+import { intuitionMainnet } from '@/lib/wagmiConfig'
 
 export function WalletConnection() {
   const { address, isConnected } = useAccount()
@@ -34,8 +34,7 @@ export function WalletConnection() {
   }, [connectors])
 
   const wrongNetwork =
-    isConnected &&
-    chainId !== intuitionTestnet.id
+    isConnected && chainId !== intuitionMainnet.id
 
   if (!primary) {
     return (
@@ -48,7 +47,7 @@ export function WalletConnection() {
   if (isConnected && wrongNetwork) {
     return (
       <div className={styles.warningBox}>
-        Wrong network — switch to Intuition Testnet (id {intuitionTestnet.id})
+        Wrong network — switch to Intuition Mainnet (id {intuitionMainnet.id})
       </div>
     )
   }
