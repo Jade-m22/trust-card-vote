@@ -30,7 +30,7 @@ export interface IntuitionContext {
 
 interface RawVault {
   term_id: `0x${string}`
-  curve_id: string
+  curve_id: string | number
   total_shares: string
   current_share_price: string
   market_cap: string | null
@@ -48,7 +48,7 @@ interface RawTriple {
 
 interface RawVaultCap {
   term_id: `0x${string}`
-  curve_id: string
+  curve_id: string | number
   market_cap: string | null
   position_count: number
 }
@@ -59,10 +59,12 @@ function sleep(ms: number) {
 
 function mapVault(raw?: RawVault | null): VaultSummary | undefined {
   if (!raw) return undefined
+  const curveId =
+    typeof raw.curve_id === 'number' ? raw.curve_id.toString() : raw.curve_id
 
   return {
     term_id: raw.term_id,
-    curve_id: raw.curve_id,
+    curve_id: curveId,
     total_shares: raw.total_shares,
     current_share_price: raw.current_share_price,
     market_cap: raw.market_cap ?? '0',
@@ -70,14 +72,20 @@ function mapVault(raw?: RawVault | null): VaultSummary | undefined {
   }
 }
 
+const TARGET_CURVE_ID = '2'
+
+function pickCurveVault(vaults: RawVault[]): RawVault | null {
+  return (
+    vaults.find((v) => String(v.curve_id) === TARGET_CURVE_ID) ?? vaults[0] ?? null
+  )
+}
+
 function mapTriple(raw: RawTriple): TrustCardTriple {
   const termVaults = raw.term?.vaults ?? []
   const counterVaults = raw.counter_term?.vaults ?? []
 
-  const supportRaw =
-    termVaults.find((v) => v.curve_id === '2') ?? termVaults[0] ?? null
-  const opposeRaw =
-    counterVaults.find((v) => v.curve_id === '2') ?? counterVaults[0] ?? null
+  const supportRaw = pickCurveVault(termVaults)
+  const opposeRaw = pickCurveVault(counterVaults)
 
   const supportVault = mapVault(supportRaw)
   const opposeVault = mapVault(opposeRaw)
@@ -288,7 +296,7 @@ export async function buyShares(
   if (!multi) throw new Error('MultiVault not found')
 
   const termId = vault.term_id as `0x${string}`
-  const curveId = BigInt(vault.curve_id)
+  const curveId = BigInt(2)
 
   return deposit(
     {

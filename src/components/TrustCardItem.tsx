@@ -213,13 +213,15 @@ export default function TrustCardItem({
       try {
         setIsPreviewLoading(true)
 
+        const curveId = BigInt(2)
+
         const [shares] = (await publicClient.readContract({
           address: multi as `0x${string}`,
           abi: MultiVaultAbi as any,
           functionName: 'previewDeposit',
           args: [
             vault.term_id as `0x${string}`,
-            BigInt(vault.curve_id),
+            curveId,
             assetsWei,
           ],
         } as any)) as [bigint, bigint]
