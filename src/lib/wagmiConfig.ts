@@ -2,12 +2,11 @@ import { http } from 'wagmi'
 import { defineChain } from 'viem'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
 import {
-  baseAccount,
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
   safeWallet,
-  walletConnectWallet,
+  baseAccount,
 } from '@rainbow-me/rainbowkit/wallets'
 
 export const intuitionMainnet = defineChain({
@@ -31,6 +30,8 @@ export const intuitionMainnet = defineChain({
   },
 })
 
+// On continue d'utiliser ta variable d'env existante.
+// Pas besoin de la changer.
 const walletConnectProjectId =
   process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ??
   '00000000000000000000000000000000'
@@ -46,7 +47,6 @@ export const wagmiConfig = getDefaultConfig({
         metaMaskWallet,
         rabbyWallet,
         rainbowWallet,
-        walletConnectWallet,
         safeWallet,
         baseAccount,
       ],
